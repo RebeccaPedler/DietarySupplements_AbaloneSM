@@ -1,0 +1,101 @@
+Column name,Data type,Responses,Justification
+reviewer_initials,Categorical,RP,First and last name intitals of the reviewer/s responsible for extracting data from the article.
+study_ID,Categorical,S001.....,Unique identifier assigned to included studies.
+full_citation,String (text),NA,Complete bibliographic reference.
+Journal,String (text),NA,Publication journal.
+publication_year,Integer,NA,Year of publication.
+country,Integer,NA,Country of primary author affiliation.
+international_collaboration,Categorical,Yes,There is more than country disclosed in author affiliations.
+,,No,All author affiliations belong to one country.
+DOI,String (text),NA,Digital objective identifier of article.
+publication_type,Categorical,Grey-literature,"Research and information produced outside of traditional commercial or academic publishing, such as reports, theses, conference papers, and government documents."
+,,Primary literature,Original research published in peer-reviewed journals.
+random_assignment,Categorical,Yes,The article explicitly states that abalone were randomly assigned to a study container and/or dietary treatment.
+,,No,The article does not explicitly state that abalone were randomly assigned to a study container and/or dietary treatment.
+blind_measurement,Categorical,Yes,The article explicitly states that all outcome measures were measured blindly.
+,,No,The article does not explicitly state that all outcome measures were measured blindly.
+protocol_registration,Categorical,Yes,The article explicity discloses pre-registration of the study protocol.
+,,No,The article does not disclose protocol registration and/or the protocol has not been registered.
+raw_data_availability,Categorical,Yes,Access to raw data has been provided in the article. This excludes instances where data is only available upon request or any other non-relevant supplementary material has been provided.
+,,No,Access to raw data has not been provided in the article or is only available upon request.
+source_code_availability,Categorical,Yes,Access to raw code used for data analysis has been provided in the article. This excludes instances where source code is only available upon request or any other non-relevant supplementary material has been provided.
+,,No,Access to raw code used for data analysis has nnot been provided in the article or is only available upon request.
+funding_disclosed,Categorical,Yes,The source of funding for the research has been disclosed in the article.
+,,No,The source of funding for the research has not been disclosed in the article.
+funding_potential_COI,Categorical,Yes,"The source of funding presents a potential conflict of interest. This relates to any instance where atleast one funding source is an industry or other body which has invested stake in the results of the article. This includes instances where materials, facilities or labour have been provided in-kind."
+,,No,"The source of funding does not present a potential conflict of interest. This describes instances where all funding has been acquired from government bodies, research funds, not for profits, Universities or any other organisation which does not have invested stake in the results of the article."
+,,NA,The funding source was not disclosed therefore no appraisal on potential conflicts of interest can be made.
+COI_disclosed,Categorical,No COI statement,No COI statement has been provided in the article.
+,,COI statement provided - No COI disclosed,A COI statement is provided and the authors disclose no conflicts of interest.
+,,COI statement provided - COI disclosed,A COI statement is provided and the authors disclose atleast one conflict of interest.
+species,Categorical,NA,Scientific name of the species studied.
+experimental_system,Categorical,Laboratory ,Any controlled indoor research facility.
+,,Land-based farm,"A commercial aquaculture facility located on land, typically using tanks or raceways supplied with pumped seawater"
+,,Other,Any other experimental system which does not fit definitions of the above categories.
+,,sea-based farm,Any commercial aquaculture facility located off-shore (e.g. in suspended sea cages).
+experimental_unit,Categorical,"Basket, cages and/or net","Any containment system using mesh baskets or nets, typically suspended in tanks or the sea, allowing water flow while keeping abalone enclosed"
+,,Other,Any other experimental unit which does not fit definitions of the above categories.
+,,Raceway,"A long, narrow tank with continuous water flow, often used in land-based systems"
+,,Tank,"Any unit which is isolated and with clear separation of dietary treatments. This excludes instances where baskets, nets and/or cages are submerged in tanks. "
+intervention_name,String (text),NA,Name of supplement studied.
+intervention_category,Categorical,Algal or diatom extract,Any substance concentrated from an algal or diatom species.
+,,Algal or diatom meal,Dried and milled biomass from any algal or diatom species.
+,,Amino acid,Any amino acid.
+,,Antioxidant,"Any compound with antioxidant or free radical scavenging capabilities which is not a vitamin (see ""Vitamins"")."
+,,Enzymes,Any exogenous enzyme.
+,,Combination,Any instance where more than one supplement is assessed in combination.
+,,Enzymes,Any exogenous enzyme.
+,,Fatty acids,Any fatty acid.
+,,Minerals ,Inorganic mineral of any form.
+,,Prebiotic ,Any non-digestible feed component or supplement added with the intention of assisiting in the growth of beneficial bacteria.
+,,Probiotic,Any instance where live bacteria is added in-feed.
+,,Protein hydrolysate,Any protein that has been enzymatically or chemically broken down into peptides and free amino acids.
+,,Terrestrial extract,"Any substance concentrated from land-based plants, animals or herbs."
+,,Terrestrial meal,"Dried and milled biomass from any land-based plants, animals or herbs."
+,,Vitamin,"Vitamin of any form (e.g. crystalline, synthetic)."
+,,Other,Any other ingredient which does not fit definitions of the above categories but could reasonable be considered a dietary supplement.
+probiotic,String (text),NA,"Species of probiotic for articles where intervention_category = probiotic. Where intervention_category does not equal probiotic, cell is left blank."
+mineral,String (text),NA,"Mineral type for articles where intervention_category = mineral. Where intervention_category does not equal mineral, cell is left blank."
+vitamin,Categorical,vitamin A,Where vitamin type is vitamin A for for articles where intervention_category = vitamin
+,,vitamin B,Where vitamin type is vitamin B for for articles where intervention_category = vitamin
+,,vitamin C,Where vitamin type is vitamin Cfor for articles where intervention_category = vitamin
+,,vitamin D,Where vitamin type is vitamin D for for articles where intervention_category = vitamin
+,,vitamin E,Where vitamin type is vitamin E for for articles where intervention_category = vitamin
+,,vitamin K,Where vitamin type is vitamin K for for articles where intervention_category = vitamin
+,,blank,Where intervention_category does not equal vitamin.
+algal_species,String (text),NA,"Species of algal meal for articles where intervention_category = algal and/or diatom meal OR algal and/or diatom extract. Where intervention_category does not equal either category, cell is left blank."
+multiple_inclusion_levels,Categorical,Yes,Multiple inclusion levels or doses of the supplements have been investigated.
+,,No,Only a single dose or inclusion level of the supplement has been investigated.
+control_diet,Categorical,No supplement,The control diet does not contain the dietary supplement under investigation.
+,,Reference levels of supplement,the control diet contains the supplement at a “reference” level which reflects concentrations naturally occurring within raw ingredients.
+,,Not specified / unknown,"It cannot be discerned if the control diet either does not contain, or contains reference levels of the supplement."
+outcome_comment,String (text),NA,List of outcomes reported within the defined category.
+outcome_category,Categorical,Antioxidant activity / oxidants,"Any measure of antioxidant and/or oxidant activity or quantity (e.g. serum catalase and/or malondialdehyde). This excludes any instance where oxidants or antioxidants are measured by gene expression (see ""Gene expression"")."
+,,Body colour,Any measure of body colour collected from any part of the body.
+,,Detachment,Any test where the endpoint is measured as detachment of the abalone from the tank or relevant substrate (e.g. heat adhesion studies).
+,,Digestive enzymes,"Any measure of enzymes responsible for the breakdown of feed components (e.g. lipase and/or trypsin activity). This excludes any instance where enzyme activity is measured by gene expression (see ""Gene expression"")"
+,,Enzyme activity (other),"Any measure of enzyme activity which is not otherwise defined by another listed category.
+"
+,,Feed behaviour,"Any observation or measurement of how the abalone interacts with feed (e.g. feed intake, palatability and/or meal acceptance)."
+,,Gene expression,Any measure of transcriptional activity of genes.
+,,Growth performance,"Any outcome which measures the growth of the abalone (e.g. weight gain, feed conversion ratio and/or shell length gain)."
+,,Histology,Any measure or description reported through observation of histopathology.
+,,Innate immunity,Any measure of innate immune activity (e.g. total hemocyte counts and/or phagocytic activity).
+,,Metabolic performance,Any measurement of respiratory activity and/or waste production (e.g. oxygen intake and/or nitrogen excretion).
+,,Metabolomics,Any measurement of small molecules (metabolites) within abalone cells or tissues.
+,,Microbiota,"Any measurement of the diversity, quantity or species of bacteria within abalone tissue. This excludes instances where pathogenic species are targeted (see ""Pathogen load"")."
+,,Nutrient assimilation or digestibility,"Any measure which investigates assimilation, uptake or utilisation of feed nutrients (e.g. abalone muscle composition, digestibility coefficients and/or protein deposition)."
+,,Pathogen load,Any measurement which qunatifies or identifies pathogens within abalone tissue.
+,,Sensory attribute/s,"Any measure of perceptible, product quality attribute (e.g. flavour compounds, texture, smell)."
+,,Survival ,Survival of abalone.
+,,Other,Any other outcome measure which does not fit definitions of the above categories but could reasonably be considered a measure of biological performance.
+repeated_measures,Categorical,Yes,Atleast one outcome measure has been collected / reported more than once for the same cohort. 
+,,No,All outcome measures are collected / reported for a single time point. 
+study_conditions,Categorical,Basal,"The study assesses performance or physiological response under normal, non-stressful conditions, which are intended to reflect “optimal” husbandry."
+,,Challenge,The experiment manipulates the environment to test the animals' tolerance and resilience under suboptimal conditions.
+challenge_category,Categorical,Air challenge,Any challenge conditions which expose abalone to air. 
+,,Bacteria challenge,Any challenge conditions which expose abalone to pathogenic bacteria species.
+,,Salinity challenge,Any challenge conditions which expose abalone to sub-optimum salinity levels. The article must disclose that the salinity is considered a challenge condition.
+,,Thermal challenge,Any challenge conditions which expose abalone to sub-optimum water temperatures. The article must disclose that the water temperature is considered a challenge condition.
+,,Other,Any other condition which does not fit definitions of the above categories but could reasonably be considered a challenge condition.
+Notes,String (text),NA,Any relevant note.
