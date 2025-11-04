@@ -29,6 +29,7 @@ within this folder, the following files are stored:
 within this folder, the following files are stored:
 -	BASES ALL 22052025.csv: This file contains all hits returned from BASES (22052025) using a modified string “Haliot” AND “Diet”.
 -	BASES DUPLICATES REMOVED 22052025.csv: This file contains all hits returned from BASES (22052025) using a modified string “Haliot” AND “Diet” and after deduplication using Deduplicate.R.
+-	physical_grey_literature.csv: This file contains details of physical grey literature documents which proceeded to full-text screening. The results of screening and inclusion/exclusion reason are also included.
 
 Screening
 This folder contains: 
