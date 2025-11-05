@@ -34,6 +34,6 @@ within this folder, the following files are stored:
 Screening
 This folder contains abstract and full-text screening files: 
 
-•	RP_abstracts.csv: This csv contains bibliometric information and outcomes for articles proceeding through abstract screening. 
+•	RP_abstracts.csv: This csv contains bibliometric information and outcomes for articles proceeding through abstract screening.
 •	RP_fulltext.csv: This csv contains bibliometric information and outcomes for articles proceeding through full-text screening. 
 
