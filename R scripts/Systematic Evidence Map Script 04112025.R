@@ -1,12 +1,3 @@
-library(tidyverse)
-library(rnaturalearth)   # for map data
-library(rnaturalearthdata)
-library(sf)              # for spatial handling
-library(ggplot2)
-library(dplyr)
-library(sf)
-library(grid)
-
 getwd()
 setwd("C:/Users/RebeccaPedler/OneDrive - Yumbah/Documents/R&D/Industry PhD/Trials/Systematic Evidence Map")
 data <- read.csv("For R.csv")
@@ -40,10 +31,11 @@ pubtype_summary <- pubtype_summary %>%
     label = paste0(round(percentage, 1), "% (", count, ")")
   )
 
-ggplot(pubtype_summary, aes(x = "", y = count, fill = publication_type)) +
-  geom_col(width = 1, color = "black") +
+# Donut plot for publication_type
+ggplot(pubtype_summary, aes(x = 2, y = count, fill = publication_type)) +
+  geom_col(color = "black") +               # border around slices
   coord_polar(theta = "y") +
-  geom_text(aes(label = label),
+  geom_text(aes(label = paste0(round(percentage,1), "% (", count, ")")),
             position = position_stack(vjust = 0.5),
             color = "black",
             fontface = "bold") +
@@ -52,8 +44,9 @@ ggplot(pubtype_summary, aes(x = "", y = count, fill = publication_type)) +
        fill = "Publication Type") +
   theme_void() +
   theme(
-    plot.title = element_text(hjust = 0.2, face = "bold")
-  )
+    plot.title = element_text(hjust = 0.1,vjust = -8.0)
+  ) +
+  xlim(1.0, 2.5) 
 
 # Summarise number and percentage of unique studies per publication year
 publication_summary <- data %>%
@@ -122,22 +115,45 @@ bubble_data <- data %>%
   group_by(journal_abbrev, publication_year) %>%
   summarise(unique_study_count = n(), .groups = "drop")
 
-# Step 2: Plot
+# Step 2: Calculate total and percentage
+total_studies <- n_distinct(data$study_ID)
+
+bubble_data <- bubble_data %>%
+  mutate(percentage = (unique_study_count / total_studies) * 100)
+
+# Step 3: Plot (percentage as bubble size)
 ggplot(bubble_data, aes(y = journal_abbrev, x = as.factor(publication_year))) +
-  geom_point(aes(size = unique_study_count), color = "steelblue", alpha = 0.7) +
-  scale_size_continuous(range = c(3, 15)) +
+  geom_point(aes(size = percentage), color = "steelblue", alpha = 0.7) +
+  scale_size_continuous(
+    name = "Percentage of Articles (%)",
+    range = c(3, 15)
+  ) +
+  scale_x_discrete(limits = as.character(1995:2025)) +  # ensures all years appear
   labs(
     title = "B",
     y = "Journal",
-    x = "Publication Year",
-    size = "Number of Articles"
+    x = "Publication Year"
   ) +
-  theme_minimal() +
+  theme_minimal(base_size = 12) +
   theme(
-    axis.text.x = element_text(angle = 45, hjust = 1),
-    axis.text.y = element_text(size = 10),
-    plot.title = element_text(face = "bold")
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 14),
+    axis.text.y = element_text(size = 14),
+    plot.title = element_text(face = "bold"),
+    panel.grid.major = element_line(color = "grey85"),
+    panel.grid.minor = element_blank(),
+    
+    # Add axis lines
+    axis.line.x = element_line(color = "black"),
+    axis.line.y = element_line(color = "black"),
+    
+    # Add external tick marks
+    axis.ticks = element_line(color = "black", size = 0.3),
+    axis.ticks.length = unit(0.2, "cm"),
+    axis.ticks.length.x = unit(0.2, "cm"),
+    axis.ticks.length.y = unit(0.2, "cm"),
+    panel.background = element_blank()
   )
+
 
 # List validity metrics
 validity_metrics <- c(
@@ -192,13 +208,6 @@ data <- data %>%
     country == "Taiwan"        ~ "Taiwan",                    # not always present in shapefile
     TRUE                       ~ country                      # default: keep original
   ))
-
-country_summary <- data %>%
-  distinct(study_ID, country) %>%
-  group_by(country) %>%
-  summarise(percentage = 100 * n() / total_studies) %>%
-  rename(name = country)
-print(country_summary)
 
 country_summary <- data %>%
   distinct(study_ID, country) %>%
@@ -258,7 +267,8 @@ ggplot(species_summary, aes(x = reorder(species, percentage), y = percentage)) +
   geom_text(aes(label = count),
             hjust = 1.2,
             color = "white",
-            fontface = "bold") +
+            fontface = "bold",
+		size = 8) +
 
   scale_y_continuous(limits = c(0, 60), expand = c(0, 0)) +
   
@@ -277,7 +287,10 @@ ggplot(species_summary, aes(x = reorder(species, percentage), y = percentage)) +
     panel.grid.major.x = element_line(color = "grey80"),
     axis.line = element_line(color = "black"),
     axis.ticks = element_line(color = "black"),
-    axis.text.y = element_text(face = "italic"),
+    axis.text.y = element_text(face = "italic", size = 14),
+axis.text.x = element_text(size = 16),
+axis.title.x = element_text(size = 16),
+axis.title.y = element_text(size = 16),
     plot.title = element_text(face = "bold")
   )
 
@@ -382,25 +395,26 @@ algal_summary <- algal_summary %>%
   mutate(label_text = paste0(round(percentage, 1), "%\n(", unique_study_count, ")"))
 
 # Plot
-ggplot(algal_summary, aes(x = percentage, y = reorder(algal_species, total_species_pct), fill = intervention_category)) +
+algal_plot <- ggplot(algal_summary, aes(x = percentage, y = reorder(algal_species, total_species_pct), fill = intervention_category)) +
   geom_col(color = "black") +
   geom_text(aes(label = label_text),
             position = position_stack(vjust = 0.5),
             color = "black",
             fontface = "bold",
-            size = 3) +
+            size = 1.6) +
   scale_fill_manual(values = c(
     "Algal or diatom meal" = "steelblue",
     "Algal or diatom extract" = "lightblue"
   )) +
   labs(
-    title = "A",
+    title = "",
     x = "Percentage of Articles (%)",
     y = "Algal Species",
     fill = "Intervention Type"
-  ) + scale_x_continuous(
-    limits = c(0, 32),          # axis goes to 45
-    breaks = seq(0, 30, 10)     # tick marks every 10
+  ) +
+  scale_x_continuous(
+    limits = c(0, 32),
+    breaks = seq(0, 30, 10)
   ) +
   theme_minimal() +
   theme(
@@ -410,9 +424,18 @@ ggplot(algal_summary, aes(x = percentage, y = reorder(algal_species, total_speci
     axis.line = element_line(color = "black"),
     axis.ticks = element_line(color = "black", size = 0.15),
     axis.ticks.length = unit(0.15, "cm"),
-    axis.text.y = element_text(face = "italic"),
+    axis.text.y = element_text(face = "italic", size = 8),
+    axis.text.x = element_text(size = 8),
+    axis.title.x = element_text(size = 8),
+    axis.title.y = element_text(size = 8),
     panel.background = element_blank(),
-    plot.title = element_text(face = "bold")
+    plot.title = element_text(face = "bold"),
+    legend.position = c(0.95, 0.05),       
+    legend.justification = c("right","bottom"),  
+    legend.background = element_rect(fill = "transparent"), 
+    legend.key.size = unit(0.075, "cm"),
+    legend.title = element_text(size = 8, face = "bold"),   
+    legend.text = element_text(size = 8)    
   )
 
 # Step 1: Filter only Vitamin studies
@@ -435,14 +458,15 @@ vitamin_summary <- vitamin_summary %>%
 print(vitamin_summary)
 
 # Step 4: Plot
-ggplot(vitamin_summary, aes(x = percentage, y = reorder(vitamin, percentage))) +
+vitamin_plot <- ggplot(vitamin_summary, aes(x = percentage, y = reorder(vitamin, percentage))) +
   geom_col(fill = "steelblue", color = "black") +
   geom_text(aes(label = label),
             hjust = 1.1,
             color = "black",
-            fontface = "bold") +
+            fontface = "bold",
+	size = 1.6) +
   labs(
-    title = "B",
+    title = "",
     x = "Percentage of Articles (%)",
     y = "Vitamin"
   ) + scale_x_continuous(
@@ -457,7 +481,10 @@ ggplot(vitamin_summary, aes(x = percentage, y = reorder(vitamin, percentage))) +
     axis.line = element_line(color = "black"),
     axis.ticks = element_line(color = "black", size = 0.15),
     axis.ticks.length = unit(0.15, "cm"),
-    axis.text.y = element_text(face = "italic"),
+    axis.text.y = element_text(size = 8),
+	axis.text.x = element_text(size = 8),
+	axis.title.x = element_text(size = 8),
+	axis.title.y = element_text(size = 8),
     panel.background = element_blank(),
     plot.title = element_text(face = "bold")
   )
@@ -482,15 +509,15 @@ mineral_summary <- mineral_summary %>%
 print(mineral_summary)
 
 # Step 4: Plot
-ggplot(mineral_summary, aes(x = percentage, y = reorder(mineral, percentage))) +
+mineral_plot <- ggplot(mineral_summary, aes(x = percentage, y = reorder(mineral, percentage))) +
   geom_col(fill = "steelblue", color = "black") +
   geom_text(aes(label = label),
             hjust = 1.1,
             color = "black",
             fontface = "bold",
-size = 2.75) +
+size = 1.6) +
   labs(
-    title = "C",
+    title = "",
     x = "Percentage of Articles (%)",
     y = "Mineral"
   ) +  
@@ -507,6 +534,10 @@ scale_x_continuous(
     axis.ticks = element_line(color = "black", size = 0.15),
     axis.ticks.length = unit(0.15, "cm"),
     panel.background = element_blank(),
+	axis.text.y = element_text(size = 8),
+	axis.text.x = element_text(size = 8),
+	axis.title.x = element_text(size = 8),
+	axis.title.y = element_text(size = 8),
     plot.title = element_text(face = "bold")
   )
 
@@ -532,15 +563,15 @@ probiotic_summary <- probiotic_summary %>%
 print(probiotic_summary)
 
 # Step 4: Plot
-ggplot(probiotic_summary, aes(x = as.numeric(percentage), y = reorder(probiotic, as.numeric(percentage)))) +
+probiotic_plot <- ggplot(probiotic_summary, aes(x = as.numeric(percentage), y = reorder(probiotic, as.numeric(percentage)))) +
   geom_col(fill = "steelblue", color = "black") +
   geom_text(aes(label = label),
             hjust = 1.1,
             color = "black",
             fontface = "bold",
-size = 2.75) +
+size = 1.6) +
   labs(
-    title = "D",
+    title = "",
     x = "Percentage of Articles (%)",
     y = "Probiotic"
   ) +
@@ -556,10 +587,35 @@ size = 2.75) +
     axis.line = element_line(color = "black"),
     axis.ticks = element_line(color = "black", size = 0.15),
     axis.ticks.length = unit(0.15, "cm"),
-    axis.text.y = element_text(face = "italic"),
+    axis.text.y = element_text(face = "italic", size = 8),
+	axis.text.x = element_text(size = 8),
+	axis.title.x = element_text(size = 8),
+	axis.title.y = element_text(size = 8),
     panel.background = element_blank(),
     plot.title = element_text(face = "bold")
   )
+
+intervention_plots <- (algal_plot + vitamin_plot) / (mineral_plot + probiotic_plot) +
+  plot_annotation(
+    tag_levels = 'A',
+    tag_prefix = "",  # optional, removes "Fig. " if you want just A, B, C, D
+    theme = theme(
+      plot.tag = element_text(face = "bold", size = 14)  # bold and size
+    )
+  ) +
+  plot_layout(
+    heights = c(1, 1),
+    widths = c(1, 1),
+    byrow = TRUE
+  )
+
+# Reduce spacing between plots
+intervention_plots <- intervention_plots & theme(
+  plot.margin = margin(2, 2, 2, 2)
+)
+
+intervention_plots
+
 
 # OUTCOME
 outcome_summary <- data %>%
@@ -608,19 +664,63 @@ ggplot(outcome_summary, aes(x = percentage, y = reorder(outcome_category, percen
   ) +
   xlim(0, max(outcome_summary$percentage) + 5)
 
-#Return full citation list
+# Step 1: Summarise number of unique studies per intervention-outcome combo
+bubble_data_OI <- data %>%
+  distinct(study_ID, intervention_category, outcome_category) %>%
+  group_by(intervention_category, outcome_category) %>%
+  summarise(unique_study_count = n(), .groups = "drop")
 
+# Step 2: Calculate total and percentage
+total_studies <- n_distinct(data$study_ID)
+
+bubble_data_OI <- bubble_data_OI %>%
+  mutate(percentage = (unique_study_count / total_studies) * 100)
+
+# Step 3: Plot (percentage as bubble size)
+ggplot(bubble_data_OI, aes(
+  x = outcome_category,
+  y = intervention_category
+)) +
+  geom_point(aes(size = percentage), color = "steelblue", alpha = 0.7) +
+  scale_size_continuous(
+    name = "Percentage of Articles (%)",
+    range = c(3, 15)
+  ) +
+  labs(
+    title = "",
+    x = "Outcome Category",
+    y = "Intervention Category"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 14),
+    axis.text.y = element_text(size = 14),
+	axis.title.y = element_text(size = 14),
+	axis.title.x = element_text(size = 14),
+    plot.title = element_text(face = "bold"),
+    panel.grid.major = element_line(color = "grey85"),
+    panel.grid.minor = element_blank(),
+
+    # Add axis lines
+    axis.line.x = element_line(color = "black"),
+    axis.line.y = element_line(color = "black"),
+
+    # Add external tick marks
+    axis.ticks = element_line(color = "black", size = 0.3),
+    axis.ticks.length = unit(0.2, "cm"),
+    panel.background = element_blank()
+  )
+
+
+#Return full citation list and save as a txt file
 # Extract unique study_ID and full_citation, ordered alphabetically by citation
 unique_citations <- data %>%
   distinct(study_ID, full_citation) %>%
   arrange(full_citation)
-
-# Print to console
 print(unique_citations$full_citation)
-
-# Write to a text file, one citation per line
 writeLines(unique_citations$full_citation, "unique_citations.txt")
 
+########OTHER RANDOM CODE TO ASSIST IN DISCUSSION
 # Step 1: Filter only Probiotic studies
 probiotic_country <- data %>%
   filter(intervention_category == "Probiotic")
@@ -642,4 +742,17 @@ probiotic_country_summary <- probiotic_country_summary %>%
 
 # View
 print(probiotic_country_summary)
+
+# Filter for Australia and summarize by literature type
+australia_summary <- data %>%
+  filter(country == "Australia") %>%
+  distinct(study_ID, publication_type) %>%  # keep unique study_ID x literature_type
+  group_by(publication_type) %>%
+  summarise(
+    study_count = n(),
+    proportion = study_count / sum(study_count) * 100,
+    .groups = "drop"
+  )
+
+print(australia_summary)
 
