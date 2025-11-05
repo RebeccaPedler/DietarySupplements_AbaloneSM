@@ -1,3 +1,14 @@
+install.packages(c("patchwork", "ggplot2", "tidyverse", "rnaturalearth", "rnaturalearthdata", "sf", "ggplot2", "dplyr", "grid", "patchwork"))
+
+library(tidyverse)
+library(rnaturalearth)   # for map data
+library(rnaturalearthdata)
+library(sf)              # for spatial handling
+library(ggplot2)
+library(dplyr)
+library(grid)
+library(patchwork)
+
 getwd()
 setwd("C:/Users/RebeccaPedler/OneDrive - Yumbah/Documents/R&D/Industry PhD/Trials/Systematic Evidence Map")
 data <- read.csv("For R.csv")
@@ -755,4 +766,5 @@ australia_summary <- data %>%
   )
 
 print(australia_summary)
+
 
