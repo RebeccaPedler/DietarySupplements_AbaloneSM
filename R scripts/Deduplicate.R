@@ -6,10 +6,10 @@ library(stringr)
 install.packages(c("stringr","janitor"))
 
 # Set working directory
-setwd("C:/Users/RebeccaPedler/OneDrive - Yumbah/Documents/R&D/Industry PhD/Trials/Meta analysis/SEARCHES")
+setwd("C:/Users/RebeccaPedler/OneDrive - Yumbah/Documents/R&D/Industry PhD/Trials/Systematic Evidence Map/SEARCHES")
 
 # Define the file name
-df <- read.csv("WOS and SCOPUS 11092025.csv", header = TRUE, stringsAsFactors = FALSE)
+df <- read.csv("WOS and SCOPUS 05062025.csv", header = TRUE, stringsAsFactors = FALSE)
 summary(df)
 
 # Step 1: Count original rows
@@ -50,3 +50,4 @@ Duplicates removed: 936
 > # Step 5: Write to CSV
 > write.csv(df_unique, "cleaned_references.csv", row.names = FALSE)
 >
+
