@@ -1,4 +1,4 @@
-install.packages(c("patchwork", "ggplot2", "tidyverse", "rnaturalearth", "rnaturalearthdata", "sf", "ggplot2", "dplyr", "grid", "patchwork"))
+install.packages(c("patchwork", "ggplot2", "tidyverse", "rnaturalearth", "rnaturalearthdata", "sf", "ggplot2", "dplyr", "grid", "readr", "here"))
 
 library(tidyverse)
 library(rnaturalearth)   # for map data
@@ -8,10 +8,12 @@ library(ggplot2)
 library(dplyr)
 library(grid)
 library(patchwork)
+library(here)
+library(readr)
 
-getwd()
-setwd("C:/Users/RebeccaPedler/OneDrive - Yumbah/Documents/R&D/Industry PhD/Trials/Systematic Evidence Map")
-data <- read.csv("For R.csv")
+###Please download GitHub repository and then run the following
+here()
+data <- read_csv(here("GitHub", "DietarySupplements_AbaloneSM","Data", "Systematic Evidence Map - Dietary supplements and abalone performance.csv"))
 head(data)
 
 # To identify NA in any column
@@ -766,5 +768,6 @@ australia_summary <- data %>%
   )
 
 print(australia_summary)
+
 
 
