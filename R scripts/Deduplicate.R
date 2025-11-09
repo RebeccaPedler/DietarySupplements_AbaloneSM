@@ -9,12 +9,8 @@ library(readr)
 
 ###Please download GitHub repository and then run the following
 here()
-data <- read_csv(here("GitHub", "DietarySupplements_AbaloneSM","Searches", "WOS AND SCOPUS .csv"))
+df <- read_csv(here("GitHub", "DietarySupplements_AbaloneSM","Searches", "primary_literature", "WOS AND SCOPUS 05062025.csv"))
 head(data)
-
-# Define the file name
-df <- read.csv("WOS and SCOPUS 05062025.csv", header = TRUE, stringsAsFactors = FALSE)
-summary(df)
 
 # Step 1: Count original rows
 original_n <- nrow(df)
@@ -54,6 +50,7 @@ Duplicates removed: 936
 > # Step 5: Write to CSV
 > write.csv(df_unique, "cleaned_references.csv", row.names = FALSE)
 >
+
 
 
 
