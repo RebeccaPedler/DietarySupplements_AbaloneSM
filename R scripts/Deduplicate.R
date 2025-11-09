@@ -1,12 +1,16 @@
-install.packages(c("stringr","janitor","tidyverse"))
+install.packages(c("stringr","janitor","tidyverse", "here", "readr"))
 
 # Load required libraries
 library(tidyverse)
 library(janitor)
 library(stringr)
+library(here)
+library(readr)
 
-# Set working directory
-setwd("C:/Users/RebeccaPedler/OneDrive - Yumbah/Documents/R&D/Industry PhD/Trials/Systematic Evidence Map/SEARCHES")
+###Please download GitHub repository and then run the following
+here()
+data <- read_csv(here("GitHub", "DietarySupplements_AbaloneSM","Searches", "WOS AND SCOPUS .csv"))
+head(data)
 
 # Define the file name
 df <- read.csv("WOS and SCOPUS 05062025.csv", header = TRUE, stringsAsFactors = FALSE)
@@ -50,5 +54,6 @@ Duplicates removed: 936
 > # Step 5: Write to CSV
 > write.csv(df_unique, "cleaned_references.csv", row.names = FALSE)
 >
+
 
 
