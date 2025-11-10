@@ -134,16 +134,16 @@ total_studies <- n_distinct(data$study_ID)
 bubble_data <- bubble_data %>%
   mutate(percentage = (unique_study_count / total_studies) * 100)
 
-# Step 3: Plot (percentage as bubble size)
+# Step 3: Plot (count as bubble size)
 ggplot(bubble_data, aes(y = journal_abbrev, x = as.factor(publication_year))) +
-  geom_point(aes(size = percentage), color = "steelblue", alpha = 0.7) +
+  geom_point(aes(size = unique_study_count), color = "steelblue", alpha = 0.7) +
   scale_size_continuous(
-    name = "Percentage of Articles (%)",
+    name = "Number of Articles",
     range = c(3, 15)
   ) +
   scale_x_discrete(limits = as.character(1995:2025)) +  # ensures all years appear
   labs(
-    title = "B",
+    title = "",
     y = "Journal",
     x = "Publication Year"
   ) +
@@ -611,9 +611,9 @@ size = 1.6) +
 intervention_plots <- (algal_plot + vitamin_plot) / (mineral_plot + probiotic_plot) +
   plot_annotation(
     tag_levels = 'A',
-    tag_prefix = "",  # optional, removes "Fig. " if you want just A, B, C, D
+    tag_prefix = "", 
     theme = theme(
-      plot.tag = element_text(face = "bold", size = 14)  # bold and size
+      plot.tag = element_text(face = "bold", size = 14) 
     )
   ) +
   plot_layout(
@@ -628,7 +628,6 @@ intervention_plots <- intervention_plots & theme(
 )
 
 intervention_plots
-
 
 # OUTCOME
 outcome_summary <- data %>%
@@ -689,14 +688,28 @@ total_studies <- n_distinct(data$study_ID)
 bubble_data_OI <- bubble_data_OI %>%
   mutate(percentage = (unique_study_count / total_studies) * 100)
 
-# Step 3: Plot (percentage as bubble size)
+# Step 2: Reorder axes by total frequency
+# Calculate total counts for ordering
+intervention_order <- bubble_data_OI %>%
+  group_by(intervention_category) %>%
+  summarise(total = sum(unique_study_count)) %>%
+  arrange(desc(total)) %>%
+  pull(intervention_category)
+
+outcome_order <- bubble_data_OI %>%
+  group_by(outcome_category) %>%
+  summarise(total = sum(unique_study_count)) %>%
+  arrange(desc(total)) %>%
+  pull(outcome_category)
+
+# Step 3: Plot
 ggplot(bubble_data_OI, aes(
-  x = outcome_category,
-  y = intervention_category
+  x = factor(outcome_category, levels = outcome_order),
+  y = factor(intervention_category, levels = intervention_order)
 )) +
-  geom_point(aes(size = percentage), color = "steelblue", alpha = 0.7) +
+  geom_point(aes(size = unique_study_count), color = "steelblue", alpha = 0.7) +
   scale_size_continuous(
-    name = "Percentage of Articles (%)",
+    name = "Number of Articles",
     range = c(3, 15)
   ) +
   labs(
@@ -708,8 +721,8 @@ ggplot(bubble_data_OI, aes(
   theme(
     axis.text.x = element_text(angle = 45, hjust = 1, size = 14),
     axis.text.y = element_text(size = 14),
-	axis.title.y = element_text(size = 14),
-	axis.title.x = element_text(size = 14),
+    axis.title.y = element_text(size = 14),
+    axis.title.x = element_text(size = 14),
     plot.title = element_text(face = "bold"),
     panel.grid.major = element_line(color = "grey85"),
     panel.grid.minor = element_blank(),
@@ -723,7 +736,6 @@ ggplot(bubble_data_OI, aes(
     axis.ticks.length = unit(0.2, "cm"),
     panel.background = element_blank()
   )
-
 
 #Return full citation list and save as a txt file
 # Extract unique study_ID and full_citation, ordered alphabetically by citation
@@ -768,6 +780,7 @@ australia_summary <- data %>%
   )
 
 print(australia_summary)
+
 
 
 
