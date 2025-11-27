@@ -259,6 +259,10 @@ ggplot(world_data) +
  panel.grid = element_blank(),           # remove all gridlines
   )
 
+# Abbreviate species names: "Haliotis laevigata" -> "H. laevigata"
+data <- data %>%
+  mutate(species = gsub("Haliotis", "H.", species))
+
 #species summary
 species_summary <- data %>%
   group_by(species) %>%
@@ -278,10 +282,10 @@ ggplot(species_summary, aes(x = reorder(species, percentage), y = percentage)) +
 
   # Count label inside bar
   geom_text(aes(label = count),
-            hjust = 1.2,
+            hjust = 1.3,
             color = "white",
             fontface = "bold",
-		size = 8) +
+		size = 4) +
 
   scale_y_continuous(limits = c(0, 60), expand = c(0, 0)) +
   
@@ -300,10 +304,10 @@ ggplot(species_summary, aes(x = reorder(species, percentage), y = percentage)) +
     panel.grid.major.x = element_line(color = "grey80"),
     axis.line = element_line(color = "black"),
     axis.ticks = element_line(color = "black"),
-    axis.text.y = element_text(face = "italic", size = 14),
-axis.text.x = element_text(size = 16),
-axis.title.x = element_text(size = 16),
-axis.title.y = element_text(size = 16),
+    axis.text.y = element_text(face = "italic", size = 14, margin = margin(r = 0.5)),
+axis.text.x = element_text(size = 12),
+axis.title.x = element_text(size = 12),
+axis.title.y = element_text(size = 12),
     plot.title = element_text(face = "bold")
   )
 
@@ -780,6 +784,7 @@ australia_summary <- data %>%
   )
 
 print(australia_summary)
+
 
 
 
