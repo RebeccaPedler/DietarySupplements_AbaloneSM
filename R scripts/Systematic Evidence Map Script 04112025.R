@@ -74,6 +74,7 @@ publication_summary <- data %>%
 print(publication_summary, n=30)
 
 # Define a named vector with full journal names and their abbreviations
+# Source/reference: https://github.com/ropensci/rnaturalearth
 abbrev_lookup <- c(
   "Aquaculture" = "Aquaculture",
   "Fish and Shellfish Immunology" = "Fish Shellfish Immunol",
@@ -784,6 +785,7 @@ australia_summary <- data %>%
   )
 
 print(australia_summary)
+
 
 
 
