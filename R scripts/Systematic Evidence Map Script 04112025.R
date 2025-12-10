@@ -13,7 +13,7 @@ library(readr)
 
 ###Please download GitHub repository and then run the following
 here()
-data <- read_csv(here("GitHub", "DietarySupplements_AbaloneSM","Data", "Systematic Evidence Map - Dietary supplements and abalone performance.csv"))
+data <- read_csv(here("Data", "Systematic Evidence Map - Dietary supplements and abalone performance.csv"))
 head(data)
 
 # To identify NA in any column
@@ -71,7 +71,7 @@ publication_summary <- data %>%
     label_percent = paste0(round(percentage, 1), "%"),
     label_count = unique_study_count
   )
-print(publication_summary, n=30)
+print(publication_summary, n = 30)
 
 # Define a named vector with full journal names and their abbreviations
 # Source/reference: https://github.com/ropensci/rnaturalearth
@@ -208,6 +208,7 @@ international_yes_count <- data %>%
 print(international_yes_count)
 
 # Recode country names to match rnaturalearth conventions
+# Source/reference: https://github.com/ropensci/rnaturalearth
 data <- data %>%
   mutate(country_standardised = case_when(
     country == "Australia"     ~ "Australia",
@@ -785,6 +786,10 @@ australia_summary <- data %>%
   )
 
 print(australia_summary)
+
+#Session info
+sessionInfo() #run and paste the output below as a comment to archive the Info on your computing environemet, e.g. R and package versions
+
 
 
 
