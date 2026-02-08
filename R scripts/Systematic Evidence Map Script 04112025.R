@@ -247,7 +247,7 @@ world_data <- world %>%
   left_join(country_summary, by = "name")
 
 # Plot heat map of geographical contribution
-ggplot(world_data) +
+world_map <- ggplot(world_data) +
   geom_sf(aes(fill = percentage)) +
     scale_fill_gradient(
     low = "#deebf7",
@@ -261,8 +261,11 @@ ggplot(world_data) +
     legend.position = "right",
     plot.title = element_text(face = "bold"),
     plot.subtitle = element_text(face = "italic"),
- panel.grid = element_blank(),           # remove all gridlines
+ panel.grid = element_blank(),           
   )
+
+world_map  #Print plot
+ggsave("world_map.png", width = 13, height = 8, units = "in")   #Save world_map
 
 # Abbreviate species names: "Haliotis laevigata" -> "H. laevigata"
 data <- data %>%
@@ -276,32 +279,24 @@ species_summary <- data %>%
 print(species_summary)
 
 #Plot
-ggplot(species_summary, aes(x = reorder(species, percentage), y = percentage)) +
+species_summary_plot <- ggplot(species_summary, aes(x = reorder(species, percentage), y = percentage)) +
   geom_col(fill = "steelblue", color = "black") +
-  
-  # Percentage label above bar
   geom_text(aes(label = paste0(round(percentage, 1), "%")),
             hjust = -0.1,
             color = "black",
             fontface = "bold") +
-
-  # Count label inside bar
   geom_text(aes(label = count),
             hjust = 1.3,
             color = "white",
             fontface = "bold",
 		size = 4) +
-
   scale_y_continuous(limits = c(0, 60), expand = c(0, 0)) +
-  
   labs(
     title = "",
     x = "Species",
     y = "Percentage of Articles"
   ) +
-  
   coord_flip() +
-  
   theme_minimal() +
   theme(
     panel.grid.major.y = element_blank(),
@@ -310,11 +305,14 @@ ggplot(species_summary, aes(x = reorder(species, percentage), y = percentage)) +
     axis.line = element_line(color = "black"),
     axis.ticks = element_line(color = "black"),
     axis.text.y = element_text(face = "italic", size = 14, margin = margin(r = 0.5)),
-axis.text.x = element_text(size = 12),
-axis.title.x = element_text(size = 12),
-axis.title.y = element_text(size = 12),
+    axis.text.x = element_text(size = 12),
+    axis.title.x = element_text(size = 12),
+    axis.title.y = element_text(size = 12),
     plot.title = element_text(face = "bold")
   )
+
+species_summary_plot  #Print plot
+ggsave("species_summary.png", width = 10, height = 8, units = "in")   #Save species_summary_plot
 
 # Summarise by experimental_unit
 experimental_unit_summary <- data %>%
@@ -327,6 +325,8 @@ experimental_unit_summary <- data %>%
   ) %>%
   arrange(desc(study_count))
 
+print(experimental_unit_summary)  # View results
+
 # Summarise by experimental_system
 experimental_system_summary <- data %>%
   distinct(study_ID, experimental_system) %>%
@@ -338,9 +338,7 @@ experimental_system_summary <- data %>%
   ) %>%
   arrange(desc(study_count))
 
-# View results
-print(experimental_unit_summary)
-print(experimental_system_summary)
+print(experimental_system_summary) # View results
 
 # INTERVENTION
 # Summarise number and percentage of unique studies per intervention category
@@ -356,19 +354,17 @@ intervention_summary <- data %>%
 print(intervention_summary)
 
 # Plot
-ggplot(intervention_summary, aes(x = percentage, y = reorder(intervention_category, percentage))) +
+intervention_summary_plot <- ggplot(intervention_summary, 
+  aes(x = percentage, y = reorder(intervention_category, percentage))) +
   geom_col(fill = "steelblue", color = "black") +
-  
   geom_text(aes(label = label_count),
             hjust = 2.0,
             color = "white",
             fontface = "bold") +
-  
   geom_text(aes(label = label_percent),
             hjust = -0.1,
             color = "black",
             fontface = "bold") +
-  
   labs(
     title = "A",
     x = "Percentage of Articles (%)",
@@ -386,24 +382,32 @@ ggplot(intervention_summary, aes(x = percentage, y = reorder(intervention_catego
     axis.ticks.y = element_line(color = "black"),
     axis.ticks.x = element_line(color = "black"),
     panel.background = element_blank(),
+    axis.text.y = element_text(size = 14),
+    axis.text.x = element_text(size = 12),
+    axis.title.x = element_text(size = 12),
+    axis.title.y = element_text(size = 12),
     plot.title = element_text(face = "bold")
   ) +
   xlim(0, max(intervention_summary$percentage) + 5)
 
-# Step 1: Filter relevant intervention categories
+intervention_summary_plot  #Print plot
+ggsave("intervention_summary.png", width = 10, height = 8, units = "in")   #Save intervention_summary_plot
+
+##Graph data for intervention_category = algal or diatom meal and/or extract
+# Filter relevant intervention categories
 algal_data <- data %>%
   filter(intervention_category %in% c("Algal or diatom extract", "Algal or diatom meal"))
 
 algal_data <- algal_data %>%
   mutate(algal_species = str_trim(str_to_title(algal_species)))
 
-# Step 2: Count unique study_IDs per species and intervention type
+# Count unique study_IDs per species and intervention type
 algal_summary <- algal_data %>%
   distinct(study_ID, algal_species, intervention_category) %>%
   group_by(algal_species, intervention_category) %>%
   summarise(unique_study_count = n(), .groups = "drop")
 
-# Step 4: Add percentage and total per species for ordering
+# Add percentage and total per species for ordering
 total_studies_algae <- sum(algal_summary$unique_study_count)
 algal_summary <- algal_summary %>%
   mutate(percentage = 100 * unique_study_count / total_studies_algae) %>%
@@ -423,7 +427,7 @@ algal_plot <- ggplot(algal_summary, aes(x = percentage, y = reorder(algal_specie
             position = position_stack(vjust = 0.5),
             color = "black",
             fontface = "bold",
-            size = 1.6) +
+            size = 2) +
   scale_fill_manual(values = c(
     "Algal or diatom meal" = "steelblue",
     "Algal or diatom extract" = "lightblue"
@@ -460,17 +464,21 @@ algal_plot <- ggplot(algal_summary, aes(x = percentage, y = reorder(algal_specie
     legend.text = element_text(size = 8)    
   )
 
-# Step 1: Filter only Vitamin studies
+algal_plot  #Print plot
+ggsave("algal_plot.png", width = 6, height = 4, units = "in")   #Save algal_plot
+
+##Graph data for intervention_category = vitamin
+#Filter only Vitamin studies
 vitamin_data <- data %>%
   filter(intervention_category == "Vitamin")
 
-# Step 2: Count unique study_IDs per vitamin
+#Count unique study_IDs per vitamin
 vitamin_summary <- vitamin_data %>%
   distinct(study_ID, vitamin) %>%
   group_by(vitamin) %>%
   summarise(unique_study_count = n(), .groups = "drop")
 
-# Step 3: Calculate total mentions and percentages
+#Calculate total mentions and percentages
 total_mentions_vitamin <- sum(vitamin_summary$unique_study_count)
 vitamin_summary <- vitamin_summary %>%
   mutate(
@@ -479,14 +487,14 @@ vitamin_summary <- vitamin_summary %>%
   )
 print(vitamin_summary)
 
-# Step 4: Plot
+# Plot
 vitamin_plot <- ggplot(vitamin_summary, aes(x = percentage, y = reorder(vitamin, percentage))) +
   geom_col(fill = "steelblue", color = "black") +
   geom_text(aes(label = label),
             hjust = 1.1,
             color = "black",
             fontface = "bold",
-	size = 1.6) +
+	size = 2) +
   labs(
     title = "",
     x = "Percentage of Articles (%)",
@@ -511,17 +519,21 @@ vitamin_plot <- ggplot(vitamin_summary, aes(x = percentage, y = reorder(vitamin,
     plot.title = element_text(face = "bold")
   )
 
-# Step 1: Filter only Mineral studies
+vitamin_plot  #Print plot
+ggsave("vitamin_plot.png", width = 6, height = 4, units = "in")   #Save vitamin_plot
+
+##Graph data for intervention_category = mineral
+# Filter only Mineral studies
 mineral_data <- data %>%
   filter(intervention_category == "Mineral")
 
-# Step 2: Count unique study_IDs per mineral
+# Count unique study_IDs per mineral
 mineral_summary <- mineral_data %>%
   distinct(study_ID, mineral) %>%
   group_by(mineral) %>%
   summarise(unique_study_count = n(), .groups = "drop")
 
-# Step 3: Calculate total and percentages
+#Calculate total and percentages
 total_studies_mineral <- sum(mineral_summary$unique_study_count)
 mineral_summary <- mineral_summary %>%
   mutate(
@@ -530,14 +542,14 @@ mineral_summary <- mineral_summary %>%
   )
 print(mineral_summary)
 
-# Step 4: Plot
+#Plot
 mineral_plot <- ggplot(mineral_summary, aes(x = percentage, y = reorder(mineral, percentage))) +
   geom_col(fill = "steelblue", color = "black") +
   geom_text(aes(label = label),
             hjust = 1.1,
             color = "black",
             fontface = "bold",
-size = 1.6) +
+size = 2) +
   labs(
     title = "",
     x = "Percentage of Articles (%)",
@@ -563,17 +575,21 @@ scale_x_continuous(
     plot.title = element_text(face = "bold")
   )
 
-# Step 1: Filter only Probiotic studies
+mineral_plot  #Print plot
+ggsave("mineral_plot.png", width = 6, height = 4, units = "in")   #Save mineral_plot
+
+##Graph data for intervention_category = probiotic
+# Filter only Probiotic studies
 probiotic_data <- data %>%
   filter(intervention_category == "Probiotic")
 
-# Step 2: Count unique study_IDs per probiotic
+# Count unique study_IDs per probiotic
 probiotic_summary <- probiotic_data %>%
   distinct(study_ID, probiotic) %>%
   group_by(probiotic) %>%
   summarise(unique_study_count = n(), .groups = "drop")
 
-# Step 3: Calculate total and percentages (format with one decimal place)
+# Calculate total and percentages (format with one decimal place)
 total_studies_probiotic <- sum(probiotic_summary$unique_study_count)
 probiotic_summary <- probiotic_summary %>%
   mutate(
@@ -584,22 +600,22 @@ probiotic_summary <- probiotic_summary %>%
 
 print(probiotic_summary)
 
-# Step 4: Plot
+# Plot
 probiotic_plot <- ggplot(probiotic_summary, aes(x = as.numeric(percentage), y = reorder(probiotic, as.numeric(percentage)))) +
   geom_col(fill = "steelblue", color = "black") +
   geom_text(aes(label = label),
             hjust = 1.1,
             color = "black",
             fontface = "bold",
-size = 1.6) +
+  size = 2) +
   labs(
     title = "",
     x = "Percentage of Articles (%)",
     y = "Probiotic"
   ) +
   scale_x_continuous(
-    limits = c(0, 32),                 # axis goes to 32
-    breaks = seq(0, 30, 10)            # tick marks every 10
+    limits = c(0, 32),                 
+    breaks = seq(0, 30, 10)           
   ) +
   theme_minimal() +
   theme(
@@ -617,6 +633,10 @@ size = 1.6) +
     plot.title = element_text(face = "bold")
   )
 
+probiotic_plot  #Print plot
+ggsave("probiotic_plot.png", width = 6, height = 4, units = "in")   #Save probiotic_plot
+
+#Combine plots for intervention_category subgroups
 intervention_plots <- (algal_plot + vitamin_plot) / (mineral_plot + probiotic_plot) +
   plot_annotation(
     tag_levels = 'A',
@@ -631,12 +651,13 @@ intervention_plots <- (algal_plot + vitamin_plot) / (mineral_plot + probiotic_pl
     byrow = TRUE
   )
 
-# Reduce spacing between plots
+#Reduce spacing
 intervention_plots <- intervention_plots & theme(
   plot.margin = margin(2, 2, 2, 2)
 )
 
-intervention_plots
+intervention_plots #Print combined plot
+ggsave("intervention_plots.png", width = 12, height = 8, units = "in")   #Save intervention_plots
 
 # OUTCOME
 outcome_summary <- data %>%
@@ -792,6 +813,7 @@ print(australia_summary)
 
 #Session info
 sessionInfo() #run and paste the output below as a comment to archive the Info on your computing environemet, e.g. R and package versions
+
 
 
 
