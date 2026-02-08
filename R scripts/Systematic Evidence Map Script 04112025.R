@@ -45,7 +45,7 @@ pubtype_summary <- pubtype_summary %>%
   )
 
 # Donut plot for publication_type
-ggplot(pubtype_summary, aes(x = 2, y = count, fill = publication_type)) +
+donut_plot <- ggplot(pubtype_summary, aes(x = 2, y = count, fill = publication_type)) +
   geom_col(color = "black") +               # border around slices
   coord_polar(theta = "y") +
   geom_text(aes(label = paste0(round(percentage,1), "% (", count, ")")),
@@ -57,9 +57,12 @@ ggplot(pubtype_summary, aes(x = 2, y = count, fill = publication_type)) +
        fill = "Publication Type") +
   theme_void() +
   theme(
-    plot.title = element_text(hjust = 0.1,vjust = -8.0)
+    plot.title = element_text(hjust = 0.1,vjust = -8.0, face = "bold")
   ) +
   xlim(1.0, 2.5) 
+
+donut_plot #Print
+ggsave("donut_plot.png", width = 8, height = 8, units = "in")   #Save donut plot
 
 # Summarise number and percentage of unique studies per publication year
 publication_summary <- data %>%
@@ -123,26 +126,27 @@ data <- data %>%
   )
 head(data)
 
-# Step 1: Summarise number of unique studies per journal-year combo
+##Create bubble plot of journal-year
+#Summarise number of unique studies per journal-year combo
 bubble_data <- data %>%
   distinct(study_ID, journal_abbrev, publication_year) %>%
   group_by(journal_abbrev, publication_year) %>%
   summarise(unique_study_count = n(), .groups = "drop")
 
-# Step 2: Calculate total and percentage
+#Calculate total and percentage
 total_studies <- n_distinct(data$study_ID)
 
 bubble_data <- bubble_data %>%
   mutate(percentage = (unique_study_count / total_studies) * 100)
 
-# Step 3: Plot (count as bubble size)
-ggplot(bubble_data, aes(y = journal_abbrev, x = as.factor(publication_year))) +
+# Plot
+journal_year <- ggplot(bubble_data, aes(y = journal_abbrev, x = as.factor(publication_year))) +
   geom_point(aes(size = unique_study_count), color = "steelblue", alpha = 0.7) +
   scale_size_continuous(
     name = "Number of Articles",
     range = c(3, 15)
   ) +
-  scale_x_discrete(limits = as.character(1995:2025)) +  # ensures all years appear
+  scale_x_discrete(limits = as.character(1995:2025)) + 
   labs(
     title = "",
     y = "Journal",
@@ -155,12 +159,8 @@ ggplot(bubble_data, aes(y = journal_abbrev, x = as.factor(publication_year))) +
     plot.title = element_text(face = "bold"),
     panel.grid.major = element_line(color = "grey85"),
     panel.grid.minor = element_blank(),
-    
-    # Add axis lines
     axis.line.x = element_line(color = "black"),
     axis.line.y = element_line(color = "black"),
-    
-    # Add external tick marks
     axis.ticks = element_line(color = "black", size = 0.3),
     axis.ticks.length = unit(0.2, "cm"),
     axis.ticks.length.x = unit(0.2, "cm"),
@@ -168,7 +168,10 @@ ggplot(bubble_data, aes(y = journal_abbrev, x = as.factor(publication_year))) +
     panel.background = element_blank()
   )
 
+journal_year  #Print plot
+ggsave("journal_year.png", width = 13, height = 11, units = "in")   #Save bubble plot
 
+#Validity assessment
 # List validity metrics
 validity_metrics <- c(
   "random_assignment",
@@ -243,7 +246,7 @@ world <- ne_countries(scale = "medium", returnclass = "sf")
 world_data <- world %>%
   left_join(country_summary, by = "name")
 
-# Step 4: Plot heat map using percentage
+# Plot heat map of geographical contribution
 ggplot(world_data) +
   geom_sf(aes(fill = percentage)) +
     scale_fill_gradient(
@@ -789,6 +792,7 @@ print(australia_summary)
 
 #Session info
 sessionInfo() #run and paste the output below as a comment to archive the Info on your computing environemet, e.g. R and package versions
+
 
 
 
