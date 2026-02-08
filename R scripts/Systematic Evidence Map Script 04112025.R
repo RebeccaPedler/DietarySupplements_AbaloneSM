@@ -128,7 +128,7 @@ head(data)
 
 ##Create bubble plot of journal-year
 #Summarise number of unique studies per journal-year combo
-bubble_data <- data %>%
+bubble_data_journal <- data %>%
   distinct(study_ID, journal_abbrev, publication_year) %>%
   group_by(journal_abbrev, publication_year) %>%
   summarise(unique_study_count = n(), .groups = "drop")
@@ -136,17 +136,17 @@ bubble_data <- data %>%
 #Calculate total and percentage
 total_studies <- n_distinct(data$study_ID)
 
-bubble_data <- bubble_data %>%
+bubble_data_journal <- bubble_data_journal %>%
   mutate(percentage = (unique_study_count / total_studies) * 100)
 
 # Plot
-journal_year <- ggplot(bubble_data, aes(y = journal_abbrev, x = as.factor(publication_year))) +
+journal_year <- ggplot(bubble_data_journal, aes(y = journal_abbrev, x = as.factor(publication_year))) +
   geom_point(aes(size = unique_study_count), color = "steelblue", alpha = 0.7) +
   scale_size_continuous(
     name = "Number of Articles",
     range = c(3, 15)
   ) +
-  scale_x_discrete(limits = as.character(1995:2025)) + 
+  scale_x_discrete(limits = as.character(1995:2025)) +  
   labs(
     title = "",
     y = "Journal",
@@ -267,6 +267,18 @@ world_map <- ggplot(world_data) +
 world_map  #Print plot
 ggsave("world_map.png", width = 13, height = 8, units = "in")   #Save world_map
 
+# Filter for Australia and summarize by literature type
+australia_summary <- data %>%
+  filter(country == "Australia") %>%
+  distinct(study_ID, publication_type) %>%  # keep unique study_ID x literature_type
+  group_by(publication_type) %>%
+  summarise(
+    study_count = n(),
+    proportion = study_count / sum(study_count) * 100,
+    .groups = "drop"
+  )
+print(australia_summary)
+
 # Abbreviate species names: "Haliotis laevigata" -> "H. laevigata"
 data <- data %>%
   mutate(species = gsub("Haliotis", "H.", species))
@@ -348,8 +360,8 @@ intervention_summary <- data %>%
   summarise(unique_study_count = n(), .groups = "drop") %>%
   mutate(
     percentage = 100 * unique_study_count / total_studies,
-    label_count = unique_study_count,                        # number inside bar
-    label_percent = paste0(round(percentage, 1), "%")       # percentage outside bar
+    label_count = unique_study_count,                        
+    label_percent = paste0(round(percentage, 1), "%")       
   )
 print(intervention_summary)
 
@@ -659,7 +671,29 @@ intervention_plots <- intervention_plots & theme(
 intervention_plots #Print combined plot
 ggsave("intervention_plots.png", width = 12, height = 8, units = "in")   #Save intervention_plots
 
-# OUTCOME
+# Filter only Probiotic studies
+probiotic_country <- data %>%
+  filter(intervention_category == "Probiotic")
+
+# Count unique study_IDs per country
+probiotic_country_summary <- probiotic_country %>%
+  distinct(study_ID, country) %>%
+  group_by(country) %>%
+  summarise(unique_study_count = n(), .groups = "drop")
+
+# Calculate total and percentages (format with one decimal place)
+total_studies_probiotic <- n_distinct(probiotic_country$study_ID)
+
+probiotic_country_summary <- probiotic_country_summary %>%
+  mutate(
+    percentage = round((unique_study_count / total_studies_probiotic) * 100, 1),
+    label = paste0(percentage, "% (", unique_study_count, ")")  # optional label
+  )
+
+# View
+print(probiotic_country_summary)
+
+## OUTCOME
 outcome_summary <- data %>%
   distinct(study_ID, outcome_category) %>%
   group_by(outcome_category) %>%
@@ -670,21 +704,18 @@ outcome_summary <- data %>%
     label_percent = paste0(round(percentage, 1), "%")
   )
 print(outcome_summary)
-print(total_studies)
 
-ggplot(outcome_summary, aes(x = percentage, y = reorder(outcome_category, percentage))) +
+#Plot
+outcome_summary <- ggplot(outcome_summary, aes(x = percentage, y = reorder(outcome_category, percentage))) +
   geom_col(fill = "steelblue", color = "black") +
-  
   geom_text(aes(label = label_count),
             hjust = 2.0,
             color = "white",
             fontface = "bold") +
-  
   geom_text(aes(label = label_percent),
             hjust = -0.1,
             color = "black",
             fontface = "bold") +
-  
   labs(
     title = "B",
     x = "Percentage of Articles (%)",
@@ -706,19 +737,23 @@ ggplot(outcome_summary, aes(x = percentage, y = reorder(outcome_category, percen
   ) +
   xlim(0, max(outcome_summary$percentage) + 5)
 
-# Step 1: Summarise number of unique studies per intervention-outcome combo
+outcome_summary #Print combined plot
+ggsave("outcome_summary.png", width = 12, height = 8, units = "in")   #Save outcome_summary
+
+##Create intervention-outcome bubble plot
+#Summarise number of unique studies per intervention-outcome combo
 bubble_data_OI <- data %>%
   distinct(study_ID, intervention_category, outcome_category) %>%
   group_by(intervention_category, outcome_category) %>%
   summarise(unique_study_count = n(), .groups = "drop")
 
-# Step 2: Calculate total and percentage
+#Calculate total and percentage
 total_studies <- n_distinct(data$study_ID)
 
 bubble_data_OI <- bubble_data_OI %>%
   mutate(percentage = (unique_study_count / total_studies) * 100)
 
-# Step 2: Reorder axes by total frequency
+#Reorder axes by total frequency
 # Calculate total counts for ordering
 intervention_order <- bubble_data_OI %>%
   group_by(intervention_category) %>%
@@ -732,8 +767,8 @@ outcome_order <- bubble_data_OI %>%
   arrange(desc(total)) %>%
   pull(outcome_category)
 
-# Step 3: Plot
-ggplot(bubble_data_OI, aes(
+# Plot
+outcome_intervention <- ggplot(bubble_data_OI, aes(
   x = factor(outcome_category, levels = outcome_order),
   y = factor(intervention_category, levels = intervention_order)
 )) +
@@ -756,16 +791,15 @@ ggplot(bubble_data_OI, aes(
     plot.title = element_text(face = "bold"),
     panel.grid.major = element_line(color = "grey85"),
     panel.grid.minor = element_blank(),
-
-    # Add axis lines
     axis.line.x = element_line(color = "black"),
     axis.line.y = element_line(color = "black"),
-
-    # Add external tick marks
     axis.ticks = element_line(color = "black", size = 0.3),
     axis.ticks.length = unit(0.2, "cm"),
     panel.background = element_blank()
   )
+
+outcome_intervention #Print combined plot
+ggsave("outcome_intervention.png", width = 13, height = 11, units = "in")   #Save outcome_intervention
 
 #Return full citation list and save as a txt file
 # Extract unique study_ID and full_citation, ordered alphabetically by citation
@@ -775,46 +809,8 @@ unique_citations <- data %>%
 print(unique_citations$full_citation)
 writeLines(unique_citations$full_citation, "unique_citations.txt")
 
-########OTHER RANDOM CODE TO ASSIST IN DISCUSSION
-# Step 1: Filter only Probiotic studies
-probiotic_country <- data %>%
-  filter(intervention_category == "Probiotic")
-
-# Step 2: Count unique study_IDs per country
-probiotic_country_summary <- probiotic_country %>%
-  distinct(study_ID, country) %>%
-  group_by(country) %>%
-  summarise(unique_study_count = n(), .groups = "drop")
-
-# Step 3: Calculate total and percentages (format with one decimal place)
-total_studies_probiotic <- n_distinct(probiotic_country$study_ID)
-
-probiotic_country_summary <- probiotic_country_summary %>%
-  mutate(
-    percentage = round((unique_study_count / total_studies_probiotic) * 100, 1),
-    label = paste0(percentage, "% (", unique_study_count, ")")  # optional label
-  )
-
-# View
-print(probiotic_country_summary)
-
-# Filter for Australia and summarize by literature type
-australia_summary <- data %>%
-  filter(country == "Australia") %>%
-  distinct(study_ID, publication_type) %>%  # keep unique study_ID x literature_type
-  group_by(publication_type) %>%
-  summarise(
-    study_count = n(),
-    proportion = study_count / sum(study_count) * 100,
-    .groups = "drop"
-  )
-
-print(australia_summary)
-
 #Session info
 sessionInfo() #run and paste the output below as a comment to archive the Info on your computing environemet, e.g. R and package versions
-
-
 
 
 
