@@ -77,7 +77,6 @@ publication_summary <- data %>%
 print(publication_summary, n = 30)
 
 # Define a named vector with full journal names and their abbreviations
-# Source/reference: https://github.com/ropensci/rnaturalearth
 abbrev_lookup <- c(
   "Aquaculture" = "Aquaculture",
   "Fish and Shellfish Immunology" = "Fish Shellfish Immunol",
@@ -811,6 +810,7 @@ writeLines(unique_citations$full_citation, "unique_citations.txt")
 
 #Session info
 sessionInfo() #run and paste the output below as a comment to archive the Info on your computing environemet, e.g. R and package versions
+
 
 
 
